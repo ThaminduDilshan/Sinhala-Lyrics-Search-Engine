@@ -1,2 +1,7 @@
 /venv/
 
+/sinhalalyrics_sraper/sinhalalyrics/__pycache__/
+/sinhalalyrics_sraper/sinhalalyrics/spiders/__pycache__/
+
+/sinhalalyrics_sraper/sinhalalyrics/lyrics_sinhalaSongBook.csv
+/sinhalalyrics_sraper/sinhalalyrics/lyrics_sinhalaSongBook.json
