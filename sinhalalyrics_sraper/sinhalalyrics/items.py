@@ -10,6 +10,7 @@ import scrapy
 
 class SinhalalyricsItem(scrapy.Item):
     # define the fields for your item here like:
+    url = scrapy.Field()
     songName = scrapy.Field()
     artist = scrapy.Field()
     genre = scrapy.Field()

@@ -10,13 +10,20 @@ exception_dict = {
     'Daddy': "ඩැඩී",
     'Wayo': "වායෝ"
 }
+translated_dict = {}            # dictionary lookup to avoid translate failures and speedup process
 
 
 def en_to_sn_translate(string):
     if string in exception_dict:
         return exception_dict[string]
-    
-    return translate(string, 'si', 'en')
+    elif string in translated_dict:
+        return translated_dict[string]
+    elif string.lower() == "unknown":
+        return ''
+    else:
+        translated = translate(string, 'si', 'en')
+        translated_dict[string] = translated
+        return translated
 
 
 def translate_array(stringList):
@@ -41,38 +48,46 @@ class SinhalaLyrics(scrapy.Spider):
     def parse_dir_contents(self, response):
         item = SinhalalyricsItem()
 
+        item['url'] = response.url
+
+        # song name
         temp = response.xpath("//div[contains(@class, 'site-inner')]//header[contains(@class, 'entry-header')]/h1/text()").extract()[0]
-        temp = re.split('\||–', temp)
+        temp = re.split('\||–|-', temp)
         item['songName'] = temp[1].strip()
 
-        try:
-            temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-3-6')]//span[contains(@class, 'entry-categories')]/a/text()").extract()
+        # artist name
+        temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-3-6')]//span[contains(@class, 'entry-categories')]/a/text()").extract()
+        if len(temp) == 0:
+            item['artist'] = []
+        else:
             temp = translate_array(temp)
             item['artist'] = temp
-        except:
-            item['artist'] = ''
-
-        try:
-            temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-3-6')]//span[contains(@class, 'entry-tags')]/a/text()").extract()
+        
+        # genre
+        temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-3-6')]//span[contains(@class, 'entry-tags')]/a/text()").extract()
+        if len(temp) == 0:
+            item['genre'] = []
+        else:
             temp = translate_array(temp)
             item['genre'] = temp
-        except:
-            item['genre'] = ''
-
-        try:
-            temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-2-6')]//span[contains(@class, 'lyrics')]/a/text()").extract()
+        
+        # lyric writer
+        temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-2-6')]//span[contains(@class, 'lyrics')]/a/text()").extract()
+        if len(temp) == 0:
+            item['lyricWriter'] = []
+        else:
             temp = translate_array(temp)
             item['lyricWriter'] = temp
-        except:
-            item['lyricWriter'] = ''
 
-        try:
-            temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-2-6')]//span[contains(@class, 'music')]/a/text()").extract()
+        # music director
+        temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'su-column su-column-size-2-6')]//span[contains(@class, 'music')]/a/text()").extract()
+        if len(temp) == 0:
+            item['musicDirector'] = []
+        else:
             temp = translate_array(temp)
             item['musicDirector'] = temp
-        except:
-            item['musicDirector'] = ''
 
+        # key & beat
         temp = response.xpath("//div[contains(@class, 'entry-content')]/h3/text()").extract()[0]
         temp = re.split('\|', temp)
         try:
@@ -85,6 +100,7 @@ class SinhalaLyrics(scrapy.Spider):
         except:
             item['beat'] = ''
 
+        # no of views
         try:
             temp = response.xpath("//div[contains(@class, 'entry-content')]/div[contains(@class, 'tptn_counter')]/text()").extract()[0]
             temp = int(re.sub('[^0-9,]', "", temp).replace(',', ''))
@@ -92,6 +108,7 @@ class SinhalaLyrics(scrapy.Spider):
         except:
             item['views'] = None
 
+        # no of shares
         try:
             temp = response.xpath("//div[contains(@class, 'entry-content')]//div[contains(@class, 'nc_tweetContainer swp_share_button total_shares total_sharesalt')]/span[contains(@class, 'swp_count')]/text()").extract()[0]
             temp = int(re.sub('[^0-9,]', "", temp).replace(',', ''))
@@ -99,17 +116,28 @@ class SinhalaLyrics(scrapy.Spider):
         except:
             item['shares'] = None
 
+        # lyric
         temp = response.xpath("//div[contains(@class, 'entry-content')]//pre/text()").extract()
         temp_lyric = ''
-        for line in temp:
-            line_content = re.sub( '  +', '\n', re.sub("[\d+^a-zA-Z|-|—|\[|\]]|\n|\t", "", line) )
-            line_content = line_content.replace('∆', '')
-            line_content = line_content.replace('#', '')
+        new_line_found_1 = True
+        new_line_found_2 = False
 
-            if '\n-' in line_content:
-                pass
-            else:
-                temp_lyric += line_content
+        for line in temp:
+            line_content = (re.sub("[\da-zA-Z\-—\[\]\t\@\_\!\#\+\$\%\^\&\*\(\)\<\>\?\|\}\{\~\:\∆\/]", "", line)).split('\n')
+            
+            for lline in line_content:
+                if lline == '' or lline.isspace():
+                    if not new_line_found_2:
+                        new_line_found_2 = True
+                        temp_lyric += '\n'
+                else:
+                    new_line_found_1 = False
+                    new_line_found_2 = False
+                    temp_lyric += lline.strip()
+            
+            if not new_line_found_1:
+                new_line_found_1 = True
+                temp_lyric += '\n'
 
         item['lyric'] = temp_lyric
 
