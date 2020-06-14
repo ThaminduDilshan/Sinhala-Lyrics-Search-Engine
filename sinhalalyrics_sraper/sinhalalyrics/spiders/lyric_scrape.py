@@ -3,6 +3,7 @@ from sinhalalyrics.items import SinhalalyricsItem
 from datetime import datetime
 import re
 from mtranslate import translate
+import pickle
 
 
 ## variables
@@ -30,6 +31,13 @@ def translate_array(stringList):
     temp = []
     for string in stringList:
         temp.append(en_to_sn_translate(string))
+        
+        # if string in ['', None]:
+        #     pass
+        # if string.lower() == "unknown":
+        #     pass
+        # else:
+        #     temp.append(string)
     
     return temp
 
@@ -39,6 +47,13 @@ class SinhalaLyrics(scrapy.Spider):
     start_urls = ['https://sinhalasongbook.com/all-sinhala-song-lyrics-and-chords/?_page=' + str(i) for i in range(1,2)]            # max range(1, 23)
 
     def parse(self, response):
+        global translated_dict
+
+        try:
+            translated_dict = pickle.load(open('../translated_dict.pickle', 'rb'))
+        except (OSError, IOError):
+            pickle.dump(translated_dict, open('../translated_dict.pickle', 'wb'))
+
         for href in response.xpath("//main[contains(@id, 'genesis-content')]//div[contains(@class, 'entry-content')]//div[contains(@class, 'pt-cv-wrapper')]//h4[contains(@class, 'pt-cv-title')]/a/@href"):
             url = href.extract()
 
@@ -46,6 +61,8 @@ class SinhalaLyrics(scrapy.Spider):
     
 
     def parse_dir_contents(self, response):
+        global translated_dict
+
         item = SinhalalyricsItem()
 
         item['url'] = response.url
@@ -140,5 +157,7 @@ class SinhalaLyrics(scrapy.Spider):
                 temp_lyric += '\n'
 
         item['lyric'] = temp_lyric
+
+        pickle.dump(translated_dict, open('../translated_dict.pickle', 'wb'))
 
         yield item
