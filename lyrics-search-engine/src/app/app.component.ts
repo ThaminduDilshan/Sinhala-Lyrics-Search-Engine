@@ -44,10 +44,12 @@ export class AppComponent {
     'button': 'සොයන්න'
   }
 
-  ngOnInit() {
-    this.lan_selected_dict = this.lan_dictionary_en
 
+  ngOnInit() {
+    this.lan_selected_dict = this.lan_dictionary_sn;
+    this.lan_selected = 'sn'
   }
+
 
   toggleLanguage() {
     if(this.lan_selected == 'en') {
@@ -64,6 +66,7 @@ export class AppComponent {
       $('.toggle-lan').html('English');
     }
   }
+
 
   lyricSearch() {
     this.retrievedLyrics = [];
@@ -87,6 +90,132 @@ export class AppComponent {
         if(this.retrievedLyrics.length == 0) {
           res.hits.hits.forEach(element => {
             if(element._score > 60) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 30) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 20) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 10) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 5) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(count < this.result_boundary/2) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+
+      },
+      error: err => {
+        this.retrievedLyrics = [],
+        console.log(err)
+      }
+    });
+
+  }
+
+
+  advancedLyricSearch() {
+    this.retrievedLyrics = [];
+    let query = $('#adv_search_query').val();
+    let artist = $('#artist').val();
+    let lyricWriter = $('#writtenby').val();
+    let musicBy = $('#musicby').val();
+    let genre = $('#genre').val();
+    let key = $('#key').val();
+    let beat = $('#beat').val();
+
+    $.ajax({
+      type: "POST",
+      url: "http://127.0.0.1:5002/advancedsearch",
+      data: {
+        query: query,
+        size: this.result_boundary,
+        language: this.lan_selected,
+        artist: artist,
+        lyric_writer: lyricWriter,
+        music_by: musicBy,
+        genre: genre,
+        key: key,
+        beat: beat
+      },
+      success: res => {
+        console.log(res.hits.hits)
+        let count = 0;
+
+        res.hits.hits.forEach(element => {
+          if(element._score > 100) {
+            this.retrievedLyrics.push(element._source)
+            count += 1
+          }
+        });
+
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 60) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 30) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 20) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 10) {
+              this.retrievedLyrics.push(element._source)
+              count += 1
+            }
+          });
+        }
+        if(this.retrievedLyrics.length == 0) {
+          res.hits.hits.forEach(element => {
+            if(element._score > 5) {
               this.retrievedLyrics.push(element._source)
               count += 1
             }

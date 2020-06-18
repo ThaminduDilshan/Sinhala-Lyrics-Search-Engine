@@ -4,7 +4,7 @@
     <img width="60" alt="Lyrics Search" src="../assets/logo.png"/>
     <span>{{lan_selected_dict['page-header']}}</span>
     <div class="spacer"></div>
-    <button (click)="toggleLanguage()" type="button" class="btn btn-primary action-btn-left toggle-lan">English</button>
+    <button (click)="toggleLanguage()" type="button" class="btn btn-success action-btn-left toggle-lan">සිංහල</button>
   </div>
 </div>
 
@@ -23,13 +23,10 @@
     <mat-tab label="{{lan_selected_dict['tab-label-2']}}">
       <div class="search-heading">{{lan_selected_dict['tab-label-2']}}</div>
 
-      <div class="input-group input-group-sm mb-3">
-        <div class="input-group-prepend">
-          <span class="input-group-text" id="lbl-song-name">{{lan_selected_dict['adv-input-label-1']}}</span>
-        </div>
-        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='song-name'>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="adv_search_query" placeholder="{{lan_selected_dict['basic-input-placeholder']}}" aria-label="Search Lyrics" aria-describedby="basic-addon2">
       </div>
-
+      
       <div class="input-group input-group-sm mb-3">
         <div class="input-group-prepend">
           <span class="input-group-text" id="lbl-artist">{{lan_selected_dict['adv-input-label-2']}}</span>
@@ -66,7 +63,7 @@
         <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='beat'>
 
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button">{{lan_selected_dict['button']}}</button>
+          <button class="btn btn-outline-secondary" type="button" (click)="advancedLyricSearch()">{{lan_selected_dict['button']}}</button>
         </div>
       </div>
 
