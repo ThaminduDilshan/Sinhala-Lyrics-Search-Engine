@@ -1,0 +1,115 @@
+
+<div class="toolbar" role="banner">
+  <div class="toolbar-content">
+    <img width="60" alt="Lyrics Search" src="../assets/logo.png"/>
+    <span>{{lan_selected_dict['page-header']}}</span>
+    <div class="spacer"></div>
+    <button (click)="toggleLanguage()" type="button" class="btn btn-primary action-btn-left toggle-lan">English</button>
+  </div>
+</div>
+
+<div class="content" role="main">
+  <mat-tab-group mat-align-tabs="start">
+    <mat-tab label="{{lan_selected_dict['tab-label-1']}}">
+      <div class="search-heading">{{lan_selected_dict['tab-label-1']}}</div>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="basic_search_query" placeholder="{{lan_selected_dict['basic-input-placeholder']}}" aria-label="Search Lyrics" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" (click)="lyricSearch()">{{lan_selected_dict['button']}}</button>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="{{lan_selected_dict['tab-label-2']}}">
+      <div class="search-heading">{{lan_selected_dict['tab-label-2']}}</div>
+
+      <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-song-name">{{lan_selected_dict['adv-input-label-1']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='song-name'>
+      </div>
+
+      <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-artist">{{lan_selected_dict['adv-input-label-2']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='artist'>
+
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-writtenby">{{lan_selected_dict['adv-input-label-4']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='writtenby'>
+
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-musicby">{{lan_selected_dict['adv-input-label-5']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='musicby'>
+      </div>
+
+      <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-genre">{{lan_selected_dict['adv-input-label-3']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='genre'>
+      </div>
+
+      <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-key">{{lan_selected_dict['adv-input-label-6']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='key'>
+
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="lbl-beat">{{lan_selected_dict['adv-input-label-7']}}</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" id='beat'>
+
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button">{{lan_selected_dict['button']}}</button>
+        </div>
+      </div>
+
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="card text-white bg-secondary mb-3" style="width: 100%;" *ngFor="let lyric of retrievedLyrics">
+    <div class="card-header">{{lyric.songName}}</div>
+
+    <div class="card-body">
+      <p class="custom-list list-label">ගායකයා (Artist)&nbsp;&nbsp;&nbsp;&nbsp;: </p><p class="custom-list" *ngFor="let artist of lyric.artist">{{artist}}</p>
+      <br/>
+      
+      <p class="custom-list list-label">පද රචනය (Lyrics)&nbsp;: </p><p class="custom-list" *ngFor="let lyricWriter of lyric.lyricWriter">{{lyricWriter}}</p>
+      <br/>
+      
+      <p class="custom-list list-label">සංගීතය (Music)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </p><p class="custom-list" *ngFor="let musicDirector of lyric.musicDirector">{{musicDirector}}</p>
+      <br/>
+      
+      <p class="custom-list list-label">
+        Key
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 
+      </p><p class="custom-list">{{lyric.key}}</p>
+      <br/>
+      
+      <p class="custom-list list-label">
+        Beat
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 
+      </p><p class="custom-list">{{lyric.beat}}</p>
+      <br/>
+
+      <span class="badge badge-pill badge-warning genre-span" *ngFor="let genre of lyric.genre">{{genre}}</span>
+      <br/>
+
+      <p class="lyric-content">{{lyric.lyric}}</p>
+
+      <p class="custom-list list-label">Views: <span class="vs-span">{{lyric.views}}</span></p>
+      <p class="custom-list list-label">Shares: <span class="vs-span">{{lyric.shares}}</span></p>
+    </div>
+  </div>
+
+</div>
+
+<router-outlet></router-outlet>
