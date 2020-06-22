@@ -16,7 +16,7 @@
   margin: -8px;
   display: flex;
   align-items: center;
-  background-color: #bb0c0c;
+  background-color: rgb(52, 129, 253);
   color: white;
   font-weight: 600;
   font-size: 2em;
@@ -91,4 +91,27 @@ a:hover {
 .vs-span {
   color: rgb(219, 219, 219);
   margin-left: 5px;
+}
+
+.loading-container {
+  margin: 32px auto;
+  width: 65%;
+  text-align: center;
+}
+
+.loading-container .spinner-border {
+  margin-top: 2em;
+  width: 3em;
+  height: 3em;
+  color: rgb(52, 129, 253);
+}
+
+.error-container {
+  margin: 32px auto;
+  width: 65%;
+}
+
+.empty-container {
+  margin: 32px auto;
+  width: 65%;
 }

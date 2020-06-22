@@ -9,6 +9,9 @@ import * as $ from 'jquery';
 export class AppComponent {
   title = 'lyrics-search-engine';
   result_boundary = 20;
+  search_pressed;
+  error_present;
+  no_result;
   
   lan_selected;
   lan_selected_dict;
@@ -26,7 +29,9 @@ export class AppComponent {
     'adv-input-label-5': 'Music By',
     'adv-input-label-6': 'Key',
     'adv-input-label-7': 'Beat',
-    'button': 'Search'
+    'button': 'Search',
+    'error-message': 'Sorry. Internal Server Error !',
+    'no-result-message': 'No Lyrics Found'
   }
 
   lan_dictionary_sn = {
@@ -41,13 +46,18 @@ export class AppComponent {
     'adv-input-label-5': 'සංගීතය',
     'adv-input-label-6': 'Key',
     'adv-input-label-7': 'Beat',
-    'button': 'සොයන්න'
+    'button': 'සොයන්න',
+    'error-message': 'සමාවන්න. සේවාදායක දෝෂයකි !',
+    'no-result-message': 'පද රචනා නැත'
   }
 
 
   ngOnInit() {
     this.lan_selected_dict = this.lan_dictionary_sn;
-    this.lan_selected = 'sn'
+    this.lan_selected = 'sn';
+    this.search_pressed = false;
+    this.error_present = false;
+    this.no_result = false;
   }
 
 
@@ -55,20 +65,23 @@ export class AppComponent {
     if(this.lan_selected == 'en') {
       this.lan_selected = 'sn';
       this.lan_selected_dict = this.lan_dictionary_sn;
-      $('.toggle-lan').removeClass('btn-primary');
+      $('.toggle-lan').removeClass('btn-light');
       $('.toggle-lan').addClass('btn-success');
       $('.toggle-lan').html('සිංහල');
     } else {
       this.lan_selected = 'en';
       this.lan_selected_dict = this.lan_dictionary_en;
       $('.toggle-lan').removeClass('btn-success');
-      $('.toggle-lan').addClass('btn-primary');
+      $('.toggle-lan').addClass('btn-light');
       $('.toggle-lan').html('English');
     }
   }
 
 
   lyricSearch() {
+    this.search_pressed = true;
+    this.error_present = false;
+    this.no_result = false;
     this.retrievedLyrics = [];
     let query = $('#basic_search_query').val();
 
@@ -78,7 +91,12 @@ export class AppComponent {
       data: {query: query, size: this.result_boundary, language: this.lan_selected},
       success: res => {
         console.log(res.hits.hits)
+        this.search_pressed = false;
         let count = 0;
+
+        if(res.hits.hits.length == 0) {
+          this.no_result = true;
+        }
 
         res.hits.hits.forEach(element => {
           if(element._score > 100) {
@@ -138,6 +156,8 @@ export class AppComponent {
 
       },
       error: err => {
+        this.search_pressed = false;
+        this.error_present = true;
         this.retrievedLyrics = [],
         console.log(err)
       }
@@ -147,6 +167,8 @@ export class AppComponent {
 
 
   advancedLyricSearch() {
+    this.search_pressed = true;
+    this.error_present = false;
     this.retrievedLyrics = [];
     let query = $('#adv_search_query').val();
     let artist = $('#artist').val();
@@ -172,7 +194,12 @@ export class AppComponent {
       },
       success: res => {
         console.log(res.hits.hits)
+        this.search_pressed = false;
         let count = 0;
+
+        if(res.hits.hits.length == 0) {
+          this.no_result = true;
+        }
 
         res.hits.hits.forEach(element => {
           if(element._score > 100) {
@@ -232,6 +259,8 @@ export class AppComponent {
 
       },
       error: err => {
+        this.search_pressed = false;
+        this.error_present = true;
         this.retrievedLyrics = [],
         console.log(err)
       }

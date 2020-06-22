@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 import json
 from elasticsearch import Elasticsearch
 from mtranslate import translate
+import re
 import process_sinhala
 from rule_classifier import classify, is_rating_query
 
@@ -11,6 +12,7 @@ index_name = 'sinhala_lyrics_tokenized'
 es = Elasticsearch('localhost', port=9200)
 tokenizer = None
 stemmer = None
+beat_pattern = re.compile('\d*\/\d*')
 
 
 def query_es_basic(search_term, limit):
@@ -21,7 +23,7 @@ def query_es_basic(search_term, limit):
     """
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
-    if len(num_list) != 0:
+    if len(num_list) != 0 and not beat_pattern.search(search_term):
         limit = num_list[0]
     
     res = es.search(
@@ -59,7 +61,7 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
     should_list = []
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
-    if len(num_list) != 0:
+    if len(num_list) != 0 and not beat_pattern.search(search_term):
         limit = num_list[0]
     
     if search_term != '':
@@ -128,18 +130,18 @@ def query_es_basic_boosted(search_term, limit, classify_out):
     should_list = []
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
-    if len(num_list) != 0:
+    if len(num_list) != 0 and not beat_pattern.search(search_term):
         limit = num_list[0]
 
     if classify_out[0]:       # lyric writer
-        should_list.append({'match': {'lyricWriter': search_term}})
+        should_list.append({'match': {'lyricWriter': classify_out[4]}})
     elif classify_out[1]:       # artist
-        should_list.append({'match': {'artist': search_term}})
+        should_list.append({'match': {'artist': classify_out[4]}})
     elif classify_out[2]:       # music director
-        should_list.append({'match': {'musicDirector': search_term}})
+        should_list.append({'match': {'musicDirector': classify_out[4]}})
     else:
-        should_list.append({'match': {'songName': search_term}})
-        should_list.append({'match': {'lyric': search_term}})
+        should_list.append({'match': {'songName': classify_out[4]}})
+        should_list.append({'match': {'lyric': classify_out[4]}})
         
     if classify_out[3]:         # if rating query
         res = es.search(
@@ -234,7 +236,10 @@ def advancedSearch(obj):
     token_list, query = process_sinhala.token_stem(query, tokenizer, stemmer)
 
     # check whether a rating query
-    if(is_rating_query(token_list)):
+    is_rating, token_query = is_rating_query(token_list)
+
+    if(is_rating):
+        query = token_query
         print('[DEBUG] Rating query => query_es_adv')
         return query_es_adv(query, artist, lyric_writer, music_by, genre, key, beat, limit, True)
     else:
