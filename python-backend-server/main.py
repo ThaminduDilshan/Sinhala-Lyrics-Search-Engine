@@ -44,6 +44,26 @@ def query_es_basic(search_term, limit):
                         # "beat"
                     ]
                 }
+            },
+            "aggs": {
+                "artist_filter": {
+                    "terms": {
+                        "field": "artist.keyword",
+                        "size": 5
+                    }
+                },
+                "lyric_filter": {
+                    "terms": {
+                        "field": "lyricWriter.keyword",
+                        "size": 5
+                    }
+                },
+                "genre_filter": {
+                    "terms": {
+                        "field": "genre.keyword",
+                        "size": 5
+                    }
+                }
             }
         }
     )
@@ -59,6 +79,7 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
 
     must_list = []
     should_list = []
+    aggs_dict = {}
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
     if len(num_list) != 0 and not beat_pattern.search(search_term):
@@ -83,6 +104,21 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
     if beat != '':
         must_list.append({'match': {'beat': beat}})
 
+    if artist != '' and lyric_writer == '':
+        aggs_dict['lyric_filter'] = {'terms': {'field': 'lyricWriter.keyword', 'size': 5}}
+    if artist != '' and genre == '':
+        aggs_dict['genre_filter'] = {'terms': {'field': 'genre.keyword', 'size': 5}}
+    
+    if lyric_writer != '' and artist == '':
+        aggs_dict['artist_filter'] = {'terms': {'field': 'artist.keyword', 'size': 5}}
+    if lyric_writer != '' and genre == '':
+        aggs_dict['genre_filter'] = {'terms': {'field': 'genre.keyword', 'size': 5}}
+    
+    if genre != '' and lyric_writer == '':
+        aggs_dict['lyric_filter'] = {'terms': {'field': 'lyricWriter.keyword', 'size': 5}}
+    if genre != '' and artist == '':
+        aggs_dict['artist_filter'] = {'terms': {'field': 'artist.keyword', 'size': 5}}
+
     if is_ranking:
         res = es.search(
             index = index_name,
@@ -100,7 +136,8 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
                             'order': 'desc'
                         }
                     }
-                ]
+                ],
+                'aggs': aggs_dict
             }
         )
     
@@ -114,7 +151,8 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
                         'must': must_list,
                         'should': should_list
                     }
-                }
+                },
+                'aggs': aggs_dict
             }
         )
 
@@ -128,6 +166,7 @@ def query_es_basic_boosted(search_term, limit, classify_out):
     """
 
     should_list = []
+    aggs_dict = {}
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
     if len(num_list) != 0 and not beat_pattern.search(search_term):
@@ -142,7 +181,14 @@ def query_es_basic_boosted(search_term, limit, classify_out):
     else:
         should_list.append({'match': {'songName': classify_out[4]}})
         should_list.append({'match': {'lyric': classify_out[4]}})
-        
+        should_list.append({'match': {'artist': classify_out[4]}})
+    
+    if classify_out[0] and not classify_out[1]:     # lyric writer and not artist
+        aggs_dict['artist_filter'] = {'terms': {'field': 'artist.keyword', 'size': 5}}
+    if classify_out[1] and not classify_out[0]:     # artist and not lyric writer
+        aggs_dict['lyric_filter'] = {'terms': {'field': 'lyricWriter.keyword', 'size': 5}}
+    aggs_dict['genre_filter'] = {'terms': {'field': 'genre.keyword', 'size': 5}}
+
     if classify_out[3]:         # if rating query
         res = es.search(
             index = index_name,
@@ -159,7 +205,8 @@ def query_es_basic_boosted(search_term, limit, classify_out):
                             'order': 'desc'
                         }
                     }
-                ]
+                ],
+                'aggs': aggs_dict
             }
         )
     
@@ -172,7 +219,8 @@ def query_es_basic_boosted(search_term, limit, classify_out):
                     'bool': {
                         'should': should_list
                     }
-                }
+                },
+                'aggs': aggs_dict
             }
         )
 
