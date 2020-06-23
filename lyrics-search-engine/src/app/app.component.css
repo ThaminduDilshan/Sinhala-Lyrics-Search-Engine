@@ -35,6 +35,10 @@
   margin: 0 16px;
 }
 
+.main-container {
+  margin: 32px auto;
+  width: 65%;
+}
 
 .content {
   display: flex;
@@ -91,6 +95,27 @@ a:hover {
 .vs-span {
   color: rgb(219, 219, 219);
   margin-left: 5px;
+}
+
+.right-comp-cont {
+  margin: 32px auto;
+  background: rgb(184, 184, 184);
+  padding-bottom: 10px;
+}
+
+.agg-cont {
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+.agg-element {
+  text-decoration: none;
+  color: rgb(73, 73, 73);
+}
+
+.agg-element:hover {
+  color: whitesmoke;
+  cursor: pointer;
 }
 
 .loading-container {

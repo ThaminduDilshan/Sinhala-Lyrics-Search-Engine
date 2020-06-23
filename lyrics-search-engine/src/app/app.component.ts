@@ -8,7 +8,7 @@ import * as $ from 'jquery';
 })
 export class AppComponent {
   title = 'lyrics-search-engine';
-  result_boundary = 20;
+  result_boundary = 50;
   search_pressed;
   error_present;
   no_result;
@@ -16,6 +16,11 @@ export class AppComponent {
   lan_selected;
   lan_selected_dict;
   retrievedLyrics = [];
+  filteredLyrics = [];
+
+  aggs_artist = [];
+  aggs_lyric_wrt = [];
+  aggs_genre = [];
 
   lan_dictionary_en = {
     'page-header': 'Sinhala Lyrics Search',
@@ -83,6 +88,11 @@ export class AppComponent {
     this.error_present = false;
     this.no_result = false;
     this.retrievedLyrics = [];
+    this.filteredLyrics = [];
+    this.aggs_artist = [];
+    this.aggs_lyric_wrt = [];
+    this.aggs_genre = [];
+
     let query = $('#basic_search_query').val();
 
     $.ajax({
@@ -91,6 +101,8 @@ export class AppComponent {
       data: {query: query, size: this.result_boundary, language: this.lan_selected},
       success: res => {
         console.log(res.hits.hits)
+        console.log(res.aggregations)
+
         this.search_pressed = false;
         let count = 0;
 
@@ -154,11 +166,31 @@ export class AppComponent {
           });
         }
 
+        this.filteredLyrics = this.retrievedLyrics;
+
+        // aggregations
+        if(res.aggregations.artist_filter !== undefined) {
+          res.aggregations.artist_filter.buckets.forEach(element => {
+            this.aggs_artist.push([element.key, element.doc_count])
+          });
+        }
+        if(res.aggregations.lyric_filter !== undefined) {
+          res.aggregations.lyric_filter.buckets.forEach(element => {
+            this.aggs_lyric_wrt.push([element.key, element.doc_count])
+          });
+        }
+        if(res.aggregations.genre_filter !== undefined) {
+          res.aggregations.genre_filter.buckets.forEach(element => {
+            this.aggs_genre.push([element.key, element.doc_count])
+          });
+        }
+
       },
       error: err => {
         this.search_pressed = false;
         this.error_present = true;
         this.retrievedLyrics = [],
+        this.filteredLyrics = [];
         console.log(err)
       }
     });
@@ -170,6 +202,11 @@ export class AppComponent {
     this.search_pressed = true;
     this.error_present = false;
     this.retrievedLyrics = [];
+    this.filteredLyrics = [];
+    this.aggs_artist = [];
+    this.aggs_lyric_wrt = [];
+    this.aggs_genre = [];
+
     let query = $('#adv_search_query').val();
     let artist = $('#artist').val();
     let lyricWriter = $('#writtenby').val();
@@ -194,6 +231,8 @@ export class AppComponent {
       },
       success: res => {
         console.log(res.hits.hits)
+        console.log(res.aggregations)
+
         this.search_pressed = false;
         let count = 0;
 
@@ -257,15 +296,57 @@ export class AppComponent {
           });
         }
 
+        this.filteredLyrics = this.retrievedLyrics;
+
+        // aggregations
+        if(res.aggregations.artist_filter !== undefined) {
+          res.aggregations.artist_filter.buckets.forEach(element => {
+            this.aggs_artist.push([element.key, element.doc_count])
+          });
+        }
+        if(res.aggregations.lyric_filter !== undefined) {
+          res.aggregations.lyric_filter.buckets.forEach(element => {
+            this.aggs_lyric_wrt.push([element.key, element.doc_count])
+          });
+        }
+        if(res.aggregations.genre_filter !== undefined) {
+          res.aggregations.genre_filter.buckets.forEach(element => {
+            this.aggs_genre.push([element.key, element.doc_count])
+          });
+        }
+
       },
       error: err => {
         this.search_pressed = false;
         this.error_present = true;
         this.retrievedLyrics = [],
+        this.filteredLyrics = [];
         console.log(err)
       }
     });
 
+  }
+
+  filterResults(type: string, filterTerm: string) {
+    if (type == 'artist') {
+      this.filteredLyrics  =this.retrievedLyrics.filter(element =>
+        element.artist.indexOf(filterTerm) !== -1
+      );
+    } else if (type == 'lyric_wrt') {
+      this.filteredLyrics  =this.retrievedLyrics.filter(element =>
+        element.lyricWriter.indexOf(filterTerm) !== -1
+      );
+    } else if (type == 'genre') {
+      this.filteredLyrics  =this.retrievedLyrics.filter(element =>
+        element.genre.indexOf(filterTerm) !== -1
+      );
+    }
+
+    if(this.filteredLyrics.length == 0) {
+      this.no_result = true
+    } else {
+      this.no_result = false
+    }
   }
 
 }
