@@ -149,7 +149,7 @@ PUT sinhala_lyrics_tokenized/_mappings/
 
 ### Setting Up the Python Server
 1. Install python and pip version 3
-2. Install required python packages by running the following command in the project home directory. `$ pip install -r requirement.txt`
+2. Install required python packages by running the following command in the project home directory. `$ pip install -r requirements.txt`
 3. Download and setup [SinLing](https://github.com/nlpc-uom/Sinling). You may have to append project path to your path environment variable.
 4. Configure the index name and Elasticsearch host:port details in `/python-backend-server/main.py` file.
 ```
