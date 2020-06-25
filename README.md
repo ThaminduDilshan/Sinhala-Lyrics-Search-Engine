@@ -157,7 +157,7 @@ index_name = 'sinhala_lyrics_tokenized'
 es = Elasticsearch('localhost', port=9200)
 ```
 
-### Setting Up the Angular Front-end
+### Setting Up Angular Front-end
 1. Download and install required node packages by running `npm install` in the `/lyrics-search-engine/` directory.
 
 ## Running the Project
