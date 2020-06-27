@@ -84,6 +84,8 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
     if len(num_list) != 0 and not beat_pattern.search(search_term):
         limit = num_list[0]
+        if search_term == str(limit):
+            search_term = ''
     
     if search_term != '':
         should_list.append({'match': {'songName': search_term}})
@@ -159,29 +161,31 @@ def query_es_adv(search_term, artist, lyric_writer, music_by, genre, key, beat, 
     return res
 
 
-def query_es_basic_boosted(search_term, limit, classify_out):
+def query_es_basic_boosted(limit, classify_out):
     """
     Query ElasticSearch for a basic search query with classifier results.
     Uses bool query.
     """
-
+    search_term = classify_out[4]
     should_list = []
     aggs_dict = {}
 
     num_list = [int(s) for s in search_term.split() if s.isdigit()]
     if len(num_list) != 0 and not beat_pattern.search(search_term):
         limit = num_list[0]
+        if search_term == str(limit):
+            search_term = ''
 
     if classify_out[0]:       # lyric writer
-        should_list.append({'match': {'lyricWriter': classify_out[4]}})
+        should_list.append({'match': {'lyricWriter': search_term}})
     elif classify_out[1]:       # artist
-        should_list.append({'match': {'artist': classify_out[4]}})
+        should_list.append({'match': {'artist': search_term}})
     elif classify_out[2]:       # music director
-        should_list.append({'match': {'musicDirector': classify_out[4]}})
-    else:
-        should_list.append({'match': {'songName': classify_out[4]}})
-        should_list.append({'match': {'lyric': classify_out[4]}})
-        should_list.append({'match': {'artist': classify_out[4]}})
+        should_list.append({'match': {'musicDirector': search_term}})
+    elif search_term != '':
+        should_list.append({'match': {'songName': search_term}})
+        should_list.append({'match': {'lyric': search_term}})
+        should_list.append({'match': {'artist': search_term}})
     
     if classify_out[0] and not classify_out[1]:     # lyric writer and not artist
         aggs_dict['artist_filter'] = {'terms': {'field': 'artist.keyword', 'size': 5}}
@@ -248,7 +252,7 @@ def basicSearch(obj):
         return query_es_basic(query, limit)
     else:
         print('[DEBUG] Rating query => query_es_basic_boosted')
-        return query_es_basic_boosted(query, limit, rules)
+        return query_es_basic_boosted(limit, rules)
 
 
 def advancedSearch(obj):

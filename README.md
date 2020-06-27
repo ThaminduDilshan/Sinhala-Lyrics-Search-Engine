@@ -20,7 +20,8 @@ PUT /sinhala_lyrics_tokenized
           "sinhalaAnalyzer": {
             "type": "custom",
             "tokenizer": "icu_tokenizer",
-            "filter": ["edgeNgram"]
+            "filter": ["edgeNgram"],
+            "char_filter": ["dotFilter"]
           }
         },
         "filter": {
@@ -29,6 +30,12 @@ PUT /sinhala_lyrics_tokenized
             "min_gram": 2,
             "max_gram": 50,
             "side": "front"
+          }
+        },
+        "char_filter": {
+          "dotFilter": {
+            "type": "mapping",
+            "mappings": ". => \\u0020"
           }
         }
       }
