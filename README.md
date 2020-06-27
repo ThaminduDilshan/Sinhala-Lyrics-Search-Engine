@@ -1,8 +1,6 @@
 # Sinhala Lyrics Search Engine
-This is a simple lyrics search engine done using Elasticsearch for sinhala songs. The project consists of a Angular frontend and Python Flask backend server.
+This is a simple lyrics search engine created using Elasticsearch for sinhala songs. The project consists of a Angular frontend and a Python Flask backend server.
 
-## Project Structure
-High level architecture diagram of the project can be depicted as below.
 ![Lyric Search Engine Architecture Diagram](images/project_architecture.png)
 
 ## Getting Started
