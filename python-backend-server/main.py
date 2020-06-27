@@ -243,6 +243,8 @@ def basicSearch(obj):
     if language == 'en':
         query = translate(query, 'si', 'en')
 
+    query = query.replace('.', ' ')
+
     # get token list
     token_list, query = process_sinhala.token_stem(query, tokenizer, stemmer)
     rules = classify(token_list)
@@ -283,6 +285,12 @@ def advancedSearch(obj):
             music_by = translate(music_by, 'si', 'en')
         if genre != '':
             genre = translate(genre, 'si', 'en')
+
+    query = query.replace('.', ' ')
+    artist = artist.replace('.', ' ')
+    lyric_writer = lyric_writer.replace('.', ' ')
+    music_by = music_by.replace('.', ' ')
+    genre = genre.replace('.', ' ')
 
     # get token list
     token_list, query = process_sinhala.token_stem(query, tokenizer, stemmer)
