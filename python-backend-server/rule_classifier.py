@@ -1,9 +1,31 @@
 
-writer_tokens = ['හදපු', 'භැදූ', 'භැදුව', 'ලියන', 'ලියන්න', 'ලියා', 'ලියූ', 'ලිව්ව', 'ලිව්', 'ලීව', 'ලියපු', 'ලියා ඇත', 'ලියා ඇති', 'රචිත', 'ලියන ලද', 'ලිඛිත', 'පදරචනය']
-artist_tokens = ['කියන', 'කියනා', 'කිව්ව', 'කිව්', 'කිව', 'කීව', 'කී', 'ගායනා කරන', 'ගයන', 'ගායනා', 'ගායනය', 'ගායනා කළා', 'ගායනා කල']
+writer_tokens = ['ලියා ඇත', 'ලියා ඇති', 'ලියන ලද', 'හදපු', 'භැදූ', 'භැදුව', 'ලියන', 'ලියන්න', 'ලියා', 'ලියූ', 'ලිව්ව', 'ලිව්', 'ලීව', 'ලියපු', 'රචිත', 'ලිඛිත', 'පදරචනය']
+artist_tokens = ['ගායනා කරන', 'ගායනා කළා', 'ගායනා කල', 'ගායනා කළ', 'කියන', 'කියනා', 'කිව්ව', 'කිව්', 'කිව', 'කීව', 'කී', 'ගයන', 'ගායනා', 'ගායනය']
 music_direc_tokens = ['අධ්‍යක්ෂණය', 'සංගීතමය', 'සංගීතවත්']
 rating_tokens = ['ඉහල', 'ඉහළම', 'හොඳ', 'හොඳම', 'වැඩිපුර', 'වැඩිපුරම', 'ජනප්රිය', 'ජනප්රියම', 'ජනප්‍රිය', 'ජනප්‍රියම', 'ප්‍රකට', 'ප්‍රසිද්ධ']
 song_tokens = ['ගීත', 'සිංදු', 'සින්දු']
+other_tokens = ['ඇත', 'ඇති', 'ලද', 'කරන', 'කළා', 'කල', 'කළ']
+
+
+def clearQuery(query):
+    """
+    Search given query string for other_tokens and return cleared query
+
+    Parameters:
+    query (str): query string
+
+    Returns:
+    str: cleared query string
+    """
+
+    temp_query = ''
+    for word in query.split(' '):
+        if word not in other_tokens:
+            temp_query += word + ' '
+
+    if temp_query == '':
+        return temp_query
+    return temp_query[:-1]
 
 
 def classify(token_list):
@@ -40,7 +62,8 @@ def classify(token_list):
             other_tokens_str += token + ' '
 
     if song_token:
-        return (writer_q, artist_q, md_q, rate_q, other_tokens_str[:-1])
+        query = clearQuery(other_tokens_str[:-1])
+        return (writer_q, artist_q, md_q, rate_q, query)
     return False
 
 
