@@ -11,6 +11,8 @@ This is a simple lyrics search engine created using Elasticsearch for sinhala so
 3. Optionally install [Kibana](https://www.elastic.co/downloads/kibana) for below query operations.
 
 ### Setting Up the Index
+> Alternatively, you can restore the index from the provided elasticsearch snapshot in the `es_snapshots/` folder [See more on snapshot and restore](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshot-restore.html)
+
 1. Create an index named `sinhala_lyrics_tokenized` in the Elasticsearch and execute below queries.
 ```
 PUT /sinhala_lyrics_tokenized
